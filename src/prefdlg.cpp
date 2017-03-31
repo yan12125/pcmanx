@@ -43,7 +43,7 @@ CPrefDlg::CPrefDlg(CWidget* parent)
 	m_pNotebook->AddPage( m_pSitePage, _("Site Settings") );
 	m_pNotebook->AddPage( m_pKeySettingPage, _("Hot Key Settings") );
 
-	gtk_box_pack_start( GTK_BOX (dlg->vbox), m_pNotebook->m_Widget, FALSE, FALSE, 4);
+	gtk_box_pack_start( GTK_BOX (gtk_dialog_get_content_area(dlg)), m_pNotebook->m_Widget, FALSE, FALSE, 4);
 
 	SetResizable(false);
 }

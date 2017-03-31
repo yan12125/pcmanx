@@ -57,13 +57,14 @@ CView::CView(): CWidget()
 
 	m_ContextMenu = NULL;
 
-	g_signal_connect(G_OBJECT(m_Widget), "expose_event", G_CALLBACK(on_expose), this);
-	g_signal_connect( G_OBJECT(m_Widget), "configure_event", G_CALLBACK (on_configure), this );
+        // TODO: choose different signal names based on GTK+ version
+	g_signal_connect(G_OBJECT(m_Widget), "draw", G_CALLBACK(on_expose), this);
+	g_signal_connect( G_OBJECT(m_Widget), "size-allocate", G_CALLBACK (on_configure), this );
 
 	g_signal_connect(G_OBJECT(m_Widget), "focus_in_event", G_CALLBACK(on_focus_in), this);
 	g_signal_connect(G_OBJECT(m_Widget), "focus_out_event", G_CALLBACK(on_focus_out), this);
 
-	GTK_WIDGET_SET_FLAGS(m_Widget, GTK_CAN_FOCUS);
+        gtk_widget_set_can_focus(m_Widget, TRUE);
 
 	Show();
 }

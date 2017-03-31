@@ -85,10 +85,12 @@ static int slow_hide_win(gpointer data)
 		return FALSE;
 	}
 
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(win->win, &alloc);
 	gtk_window_get_position(GTK_WINDOW(win->win), &x, &y);
 	y += STEPS;
 	win->size -= STEPS;
-	x_diff = width - win->win->allocation.width;
+	x_diff = width - alloc.width;
 	if (x_diff < 0)
 		x_diff = 0;
 	gtk_window_move(GTK_WINDOW(win->win), x_diff, y);
@@ -98,7 +100,7 @@ static int slow_hide_win(gpointer data)
 static int wait_win(gpointer data)
 {
 	Win *win = (Win *)data;
-	win->ani_timer_id = gtk_timeout_add(SPEED, slow_hide_win, data);
+	win->ani_timer_id = gdk_threads_add_timeout(SPEED, slow_hide_win, data);
 	win->timeout_id = 0;
 	return FALSE;
 }
@@ -111,7 +113,7 @@ static int mouseout_win(GtkWidget *widget,
 	gtk_container_set_border_width(GTK_CONTAINER(win->win), 5);
 	if (win->timeout_id)
 		g_source_remove(win->timeout_id);
-	win->timeout_id = gtk_timeout_add(WAIT_PERIOD, wait_win, data);
+	win->timeout_id = gdk_threads_add_timeout(WAIT_PERIOD, wait_win, data);
 	return TRUE;
 }
 
@@ -145,15 +147,17 @@ static int slow_show_win(gpointer data)
 
 		/* Trace animation timeout */
 		win->ani_timer_id = 0;
-		win->timeout_id = gtk_timeout_add(
+		win->timeout_id = gdk_threads_add_timeout(
 			popup_timeout, wait_win, data);
 		return FALSE;
 	}
 
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(win->win, &alloc);
 	gtk_window_get_position(GTK_WINDOW(win->win), &x, &y);
 	y -= STEPS;
 	win->size += STEPS;
-	x_diff = width - win->win->allocation.width;
+	x_diff = width - alloc.width;
 	if (x_diff < 0)
 		x_diff = 0;
 	gtk_window_move(GTK_WINDOW(win->win), x_diff, y);
@@ -177,12 +181,14 @@ static Win* begin_animation(GtkWidget * win, GtkWidget * context)
 	w->size = 0;
 
 	gtk_widget_realize(win);
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(win, &alloc);
 	gtk_window_move(
 		GTK_WINDOW(win), 
-		working_area.x + width - win->allocation.width, begin);
+		working_area.x + width - alloc.width, begin);
 	gtk_widget_show_all(win);
 
-	w->ani_timer_id = gtk_timeout_add(SPEED, slow_show_win, w);
+	w->ani_timer_id = gdk_threads_add_timeout(SPEED, slow_show_win, w);
 	w->timeout_id = 0;
 
 	return w;
@@ -264,7 +270,9 @@ static GtkWidget* notify_new(
 	gtk_container_set_border_width(GTK_CONTAINER(frame),0);
 	gtk_container_add(GTK_CONTAINER(button), frame);
 
-	gtk_window_set_default_size(GTK_WINDOW(win), win->allocation.width, NHEIGHT);
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(win, &alloc);
+	gtk_window_set_default_size(GTK_WINDOW(win), alloc.width, NHEIGHT);
 	gtk_container_add(GTK_CONTAINER(frame), body);
 
 	if (click_cb)

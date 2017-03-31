@@ -64,11 +64,14 @@ bool CWidget::PostCreate()
 
 void widget_enable_rgba(GtkWidget* wid)
 {
+    // TODO: colormap correspondance in GTK+3?
+/*
   GdkScreen* screen = gtk_widget_get_screen(wid);
   GdkColormap* cmap = gdk_screen_get_rgba_colormap(screen);
   if (cmap) {
     gtk_widget_set_colormap(wid, cmap);
   }
+*/
 }
 
 void CWidget::OnCreate()
@@ -80,14 +83,16 @@ void CWidget::Refresh()
 {
 	/* Do not call gdk_window_invalidate_rect on
 	 * a non-realized GtkWidget. */
-	if (! GTK_WIDGET_REALIZED(m_Widget))
+	if (! gtk_widget_get_realized(m_Widget))
 			return;
 
 	GdkRectangle t_Rect;
+        GtkAllocation alloc;
+        gtk_widget_get_allocation(m_Widget, &alloc);
 	t_Rect.x = t_Rect.y = 0;
-	t_Rect.width = m_Widget->allocation.width;
-	t_Rect.height = m_Widget->allocation.height;
-	gdk_window_invalidate_rect(m_Widget->window, &t_Rect, true);
+	t_Rect.width = alloc.width;
+	t_Rect.height = alloc.height;
+	gdk_window_invalidate_rect(gtk_widget_get_window(m_Widget), &t_Rect, true);
 }
 
 void CWidget::Destroy()

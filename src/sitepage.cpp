@@ -34,11 +34,11 @@ CSitePage::CSitePage(CSite& site)
 	GtkWidget *label40;
 	GtkWidget *hbox3;
 	GtkWidget *label3;
-	GtkObject *m_Reconnect_adj;
+	GtkAdjustment *m_Reconnect_adj;
 	GtkWidget *label4;
 	GtkWidget *hbox6;
 	GtkWidget *label10;
-	GtkObject *m_Idle_adj;
+	GtkAdjustment *m_Idle_adj;
 	GtkWidget *label11;
 	GtkWidget *hbox7;
 	GtkWidget *label12;
@@ -46,15 +46,15 @@ CSitePage::CSitePage(CSite& site)
 	GtkWidget *label17;
 	GtkWidget *hbox14;
 	GtkWidget *label22;
-	GtkObject *m_Line_adj;
+	GtkAdjustment *m_Line_adj;
 	GtkWidget *label23;
-	GtkObject *m_Col_adj;
+	GtkAdjustment *m_Col_adj;
 	GtkWidget *hbox10;
 	GtkWidget *label20;
 	GtkWidget *label21;
 	GtkWidget *hbox15;
 	GtkWidget *label24;
-	GtkObject *m_PasteWrap_adj;
+	GtkAdjustment *m_PasteWrap_adj;
 	GtkWidget *label25;
 	GtkWidget *hbox25;
 	GtkWidget *label39;
@@ -319,7 +319,7 @@ bool CSitePage::OnOK()
 {
 	m_Site.m_Name = gtk_entry_get_text(GTK_ENTRY(m_Name));
 	m_Site.m_URL = gtk_entry_get_text(GTK_ENTRY(m_Address));
-	if( GTK_WIDGET_VISIBLE(m_Name) && (m_Site.m_Name.empty() || m_Site.m_URL.empty()) )
+	if( gtk_widget_is_visible(m_Name) && (m_Site.m_Name.empty() || m_Site.m_URL.empty()) )
 		return false;	// Empty name and URL are not allowed.
 	m_Site.m_AntiIdle = atoi( gtk_entry_get_text(GTK_ENTRY(m_Idle)) );
 	m_Site.m_AntiIdleStr = gtk_entry_get_text(GTK_ENTRY(m_IdleStr));

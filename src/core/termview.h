@@ -41,6 +41,12 @@ class CTermData;
 class CHyperLink;
 class CFont;
 
+// Modified from /usr/include/gtk-2.0/gdk/gdkdrawable.h
+struct Trapezoid
+{
+  double y1, x11, x21, y2, x12, x22;
+};
+
 class X_EXPORT CTermView : public CView
 {
 friend class CTermData;
@@ -103,7 +109,7 @@ private:
     void SetSource(cairo_t* cr, GdkColor* color, bool transparent = true);
     void Rectangle(cairo_t* cr, bool fill, int top, int left, int width, int height);
     void Line(cairo_t* cr, int x0, int y0, int x1, int y1);
-    void Trapezoids(cairo_t *cr, GdkTrapezoid *trapezoids, GdkColor *color);
+    void Trapezoids(cairo_t *cr, Trapezoid *trapezoids, GdkColor *color);
     
 protected:
 	CTermData* m_pTermData;
@@ -127,7 +133,7 @@ protected:
 	int m_CharPaddingY;
     GdkColor* m_pColorTable;
 	GdkColor* m_pHyperLinkColor;
-    GdkGC* m_GC;
+    // GdkGC* m_GC;
     bool m_AutoFontSize;
 
     bool m_CancelSel;	// If selection is canceled in OnLButtonDown, this flag is set to true.

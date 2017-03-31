@@ -48,6 +48,7 @@ public:
     string GetName(){		return m_Name;		}
     bool GetAntiAlias(){	return m_AntiAlias;	}
     bool GetCompact(){		return m_Compact;	}
+    int GetSize(){		return m_PointSize;	}
 protected:
     XftFont* m_XftFont;
     string m_Name;

@@ -153,107 +153,107 @@ bool CTelnetView::OnKeyDown(GdkEventKey* evt)
 
 	switch(evt->keyval)
 	{
-	case GDK_Left:
-	case GDK_KP_Left:
+	case GDK_KEY_Left:
+	case GDK_KEY_KP_Left:
 		LeaveWrapper(GetCon(), pAttr, x);
 		break;
-	case GDK_Right:
-	case GDK_KP_Right:
+	case GDK_KEY_Right:
+	case GDK_KEY_KP_Right:
 		EnterWrapper(GetCon(), pAttr, x);
 		break;
-	case GDK_Up:
-	case GDK_KP_Up:
+	case GDK_KEY_Up:
+	case GDK_KEY_KP_Up:
 		GetCon()->SendString("\x1bOA");
 		break;
-	case GDK_Down:
-	case GDK_KP_Down:
+	case GDK_KEY_Down:
+	case GDK_KEY_KP_Down:
 		GetCon()->SendString("\x1bOB");
 		break;
-	case GDK_BackSpace:
+	case GDK_KEY_BackSpace:
 		if (GetCon()->DetectDBChar() && x > 0 && pAttr[x-1].GetCharSet() == CTermCharAttr::CS_MBCS2)
 			GetCon()->SendString("\b\b");
 		else
 			GetCon()->SendString("\b");
 		break;
-	case GDK_Return:
-	case GDK_KP_Enter:
+	case GDK_KEY_Return:
+	case GDK_KEY_KP_Enter:
 		reconnect = GetCon()->IsClosed();
 		GetCon()->SendString("\r");
 		break;
-	case GDK_Delete:
-	case GDK_KP_Delete:
+	case GDK_KEY_Delete:
+	case GDK_KEY_KP_Delete:
 		if (GetCon()->DetectDBChar() && pAttr[x].GetCharSet() == CTermCharAttr::CS_MBCS1)
 			GetCon()->SendString("\x1b[3~\x1b[3~");
 		else
 			GetCon()->SendString("\x1b[3~");
 		break;
-	case GDK_Insert:
-	case GDK_KP_Insert:
+	case GDK_KEY_Insert:
+	case GDK_KEY_KP_Insert:
 		GetCon()->SendString("\x1b[2~");
 		break;
-	case GDK_Home:
-	case GDK_KP_Home:
+	case GDK_KEY_Home:
+	case GDK_KEY_KP_Home:
 		GetCon()->SendString("\x1b[1~");
 		break;
-	case GDK_End:
-	case GDK_KP_End:
+	case GDK_KEY_End:
+	case GDK_KEY_KP_End:
 		GetCon()->SendString("\x1b[4~");
 		break;
-//	case GDK_Prior:
-	case GDK_Page_Up:
-	case GDK_KP_Page_Up:
+//	case GDK_KEY_Prior:
+	case GDK_KEY_Page_Up:
+	case GDK_KEY_KP_Page_Up:
 		GetCon()->SendString("\x1b[5~");
 		break;
-//	case GDK_Next:
-	case GDK_Page_Down:
-	case GDK_KP_Page_Down:
+//	case GDK_KEY_Next:
+	case GDK_KEY_Page_Down:
+	case GDK_KEY_KP_Page_Down:
 		GetCon()->SendString("\x1b[6~");
 		break;
-	case GDK_Tab:
+	case GDK_KEY_Tab:
 		GetCon()->SendString("\t");
 		break;
-	case GDK_Escape:
+	case GDK_KEY_Escape:
 		GetCon()->SendString("\x1b");
 		break;
 // F1-F12 keys
-	case GDK_F1:
-	case GDK_KP_F1:
+	case GDK_KEY_F1:
+	case GDK_KEY_KP_F1:
 		GetCon()->SendString("\x1bOP");
 		break;
-	case GDK_F2:
-	case GDK_KP_F2:
+	case GDK_KEY_F2:
+	case GDK_KEY_KP_F2:
 		GetCon()->SendString("\x1bOQ");
 		break;
-	case GDK_F3:
-	case GDK_KP_F3:
+	case GDK_KEY_F3:
+	case GDK_KEY_KP_F3:
 		GetCon()->SendString("\x1bOR");
 		break;
-	case GDK_F4:
-	case GDK_KP_F4:
+	case GDK_KEY_F4:
+	case GDK_KEY_KP_F4:
 		GetCon()->SendString("\x1bOS");
 		break;
-	case GDK_F5:
+	case GDK_KEY_F5:
 		GetCon()->SendString("\x1b[15~");
 		break;
-	case GDK_F6:
+	case GDK_KEY_F6:
 		GetCon()->SendString("\x1b[17~");
 		break;
-	case GDK_F7:
+	case GDK_KEY_F7:
 	    GetCon()->SendString("\x1b[18~");
 		break;
-	case GDK_F8:
+	case GDK_KEY_F8:
 		GetCon()->SendString("\x1b[19~");
 		break;
-	case GDK_F9:
+	case GDK_KEY_F9:
 		GetCon()->SendString("\x1b[20~");
 		break;
-	case GDK_F10:
+	case GDK_KEY_F10:
 		GetCon()->SendString("\x1b[21~");
 		break;
-	case GDK_F11:
+	case GDK_KEY_F11:
 		GetCon()->SendString("\x1b[23~");
 		break;
-	case GDK_F12:
+	case GDK_KEY_F12:
 		GetCon()->SendString("\x1b[24~");
 		break;
 	default:
@@ -313,7 +313,7 @@ void CTelnetView::OnMouseMove(GdkEventMotion* evt)
 	  // display it immediatly.
 	  m_Caret.Show( false );
 #ifdef USE_MOUSE
-	  {gdk_window_set_cursor(m_Widget->window, NULL);m_CursorState=0;}
+	  {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), NULL);m_CursorState=0;}
 #endif
 	}
     }
@@ -363,57 +363,57 @@ void CTelnetView::OnMouseMove(GdkEventMotion* evt)
     if ( AppConfig.MouseSupport == true )
     {
       if( x > 0 && x < m_pTermData->m_ColsPerPage && pattr[x].IsHyperLink() )
-      {gdk_window_set_cursor(m_Widget->window, m_HandCursor);m_CursorState=-1;}
+      {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_HandCursor);m_CursorState=-1;}
       else
       {
 	switch( ((CTelnetCon*)m_pTermData)->GetPageState() )
 	{
 	  case -1: //NORMAL
-	    gdk_window_set_cursor(m_Widget->window, NULL);
+	    gdk_window_set_cursor(gtk_widget_get_window(m_Widget), NULL);
 	    m_CursorState=0;
 	    break;
 	  case 1: //LIST
 	    if ( y>2 && y < m_pTermData->m_RowsPerPage-1 )
 	    {
 	      if ( x <= 6 )
-	      {gdk_window_set_cursor(m_Widget->window, m_ExitCursor);m_CursorState=1;}
+	      {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_ExitCursor);m_CursorState=1;}
 	      else if ( x >= m_pTermData->m_ColsPerPage-16 )
 	      {
 		if ( y > m_pTermData->m_RowsPerPage /2 )
-		{gdk_window_set_cursor(m_Widget->window, m_PageDownCursor);m_CursorState=3;}
+		{gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_PageDownCursor);m_CursorState=3;}
 		else
-		{gdk_window_set_cursor(m_Widget->window, m_PageUpCursor);m_CursorState=4;}
+		{gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_PageUpCursor);m_CursorState=4;}
 	      }
 	      else
-	      {gdk_window_set_cursor(m_Widget->window, m_BullsEyeCursor);m_CursorState=2;}
+	      {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_BullsEyeCursor);m_CursorState=2;}
 	    }
 	    else if ( y==1 || y==2 )
-	    {gdk_window_set_cursor(m_Widget->window, m_PageUpCursor);m_CursorState=4;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_PageUpCursor);m_CursorState=4;}
 	    else if ( y==0 )
-	    {gdk_window_set_cursor(m_Widget->window, m_HomeCursor);m_CursorState=6;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_HomeCursor);m_CursorState=6;}
 	    else //if ( y = m_pTermData->m_RowsPerPage-1)
-	    {gdk_window_set_cursor(m_Widget->window, m_EndCursor);m_CursorState=5;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_EndCursor);m_CursorState=5;}
 	    break;
 	  case 2: //READING
 	    if ( y == m_pTermData->m_RowsPerPage-1)
-	    {gdk_window_set_cursor(m_Widget->window, m_EndCursor);m_CursorState=5;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_EndCursor);m_CursorState=5;}
 	    else if ( x<7 )
-	    {gdk_window_set_cursor(m_Widget->window, m_ExitCursor);m_CursorState=1;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_ExitCursor);m_CursorState=1;}
 	    else if ( y < (m_pTermData->m_RowsPerPage-1)/2 )
-	    {gdk_window_set_cursor(m_Widget->window, m_PageUpCursor);m_CursorState=4;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_PageUpCursor);m_CursorState=4;}
 	    else
-	    {gdk_window_set_cursor(m_Widget->window, m_PageDownCursor);m_CursorState=3;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_PageDownCursor);m_CursorState=3;}
 	    break;
 	  case 0: //MENU
 	    if ( y>0 && y < m_pTermData->m_RowsPerPage-1 )
 	    {
 	      if (x>7)
-	      {gdk_window_set_cursor(m_Widget->window, m_BullsEyeCursor);m_CursorState=2;}
+	      {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_BullsEyeCursor);m_CursorState=2;}
 	      else
-	      {gdk_window_set_cursor(m_Widget->window, m_ExitCursor);m_CursorState=1;}
+	      {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_ExitCursor);m_CursorState=1;}
 	    }
 	    else
-	    {gdk_window_set_cursor(m_Widget->window, NULL);m_CursorState=0;}
+	    {gdk_window_set_cursor(gtk_widget_get_window(m_Widget), NULL);m_CursorState=0;}
 	    break;
 	  default:
 	    break;
@@ -424,9 +424,9 @@ void CTelnetView::OnMouseMove(GdkEventMotion* evt)
     {
       CTermCharAttr* pattr = m_pTermData->GetLineAttr(m_pTermData->m_Screen[ y ]);
       if( x > 0 && x < m_pTermData->m_ColsPerPage && pattr[x].IsHyperLink() )
-	gdk_window_set_cursor(m_Widget->window, m_HandCursor);
+	gdk_window_set_cursor(gtk_widget_get_window(m_Widget), m_HandCursor);
       else
-	gdk_window_set_cursor(m_Widget->window, NULL);;
+	gdk_window_set_cursor(gtk_widget_get_window(m_Widget), NULL);;
       m_CursorState=0;
     }
 #endif // defined(USE_MOUSE)

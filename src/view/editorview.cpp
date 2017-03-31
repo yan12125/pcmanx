@@ -52,47 +52,47 @@ bool CEditorView::OnKeyDown(GdkEventKey* evt)
 
 	switch(evt->keyval)
 	{
-		case GDK_Left:
-		case GDK_KP_Left:
+		case GDK_KEY_Left:
+		case GDK_KEY_KP_Left:
 			GetEditor()->EditorActions(CEditor::Move_Left);
 			break;
-		case GDK_Right:
-		case GDK_KP_Right:
+		case GDK_KEY_Right:
+		case GDK_KEY_KP_Right:
 			GetEditor()->EditorActions(CEditor::Move_Right);
 			break;
-		case GDK_Up:
-		case GDK_KP_Up:
+		case GDK_KEY_Up:
+		case GDK_KEY_KP_Up:
 			GetEditor()->EditorActions(CEditor::Move_Up);
 			break;
-		case GDK_Down:
-		case GDK_KP_Down:
+		case GDK_KEY_Down:
+		case GDK_KEY_KP_Down:
 			GetEditor()->EditorActions(CEditor::Move_Down);
 			break;
-		case GDK_BackSpace:
+		case GDK_KEY_BackSpace:
 			GetEditor()->EditorActions(CEditor::Backspace_Text);
 			break;
-		case GDK_Return:
-		case GDK_KP_Enter:
+		case GDK_KEY_Return:
+		case GDK_KEY_KP_Enter:
 			GetEditor()->EditorActions(CEditor::New_Line);
 			break;
-		case GDK_Delete:
-		case GDK_KP_Delete:
+		case GDK_KEY_Delete:
+		case GDK_KEY_KP_Delete:
 			GetEditor()->EditorActions(CEditor::Delete_Text);
 			break;
-		case GDK_Home:
-		case GDK_KP_Home:
+		case GDK_KEY_Home:
+		case GDK_KEY_KP_Home:
 			GetEditor()->EditorActions(CEditor::Move_To_Home);
 			break;
-		case GDK_End:
-		case GDK_KP_End:
+		case GDK_KEY_End:
+		case GDK_KEY_KP_End:
 			GetEditor()->EditorActions(CEditor::Move_To_End);
 			break;
-		case GDK_Page_Up:
-		case GDK_KP_Page_Up:
+		case GDK_KEY_Page_Up:
+		case GDK_KEY_KP_Page_Up:
 			GetEditor()->EditorActions(CEditor::Move_To_Prev_Page);
 			break;
-		case GDK_Page_Down:
-		case GDK_KP_Page_Down:
+		case GDK_KEY_Page_Down:
+		case GDK_KEY_KP_Page_Down:
 			GetEditor()->EditorActions(CEditor::Move_To_Next_Page);
 			break;
 		default:

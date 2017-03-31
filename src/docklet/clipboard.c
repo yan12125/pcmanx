@@ -48,12 +48,15 @@ gboolean detect_get_clipboard()
 	gboolean retval = FALSE;
 	GtkClipboard *clipboard;
 	Atom atom;
+        GdkDisplay *gdkDisplay;
 
 	atom = gdk_x11_get_xatom_by_name(CLIPBOARD_NAME);
 
-	XGrabServer(GDK_DISPLAY());
+        gdkDisplay = gdk_display_get_default();
 
-	if (XGetSelectionOwner(GDK_DISPLAY(), atom) != None)
+	XGrabServer(GDK_DISPLAY_XDISPLAY(gdkDisplay));
+
+	if (XGetSelectionOwner(GDK_DISPLAY_XDISPLAY(gdkDisplay), atom) != None)
 		goto out;
 
 	clipboard = gtk_clipboard_get(gdk_atom_intern(CLIPBOARD_NAME, FALSE));
@@ -66,7 +69,7 @@ gboolean detect_get_clipboard()
 		retval = TRUE;
 
 out:
-	XUngrabServer (GDK_DISPLAY ());
+	XUngrabServer (GDK_DISPLAY_XDISPLAY (gdkDisplay));
 	gdk_flush ();
 
 	return retval;

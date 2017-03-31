@@ -25,9 +25,10 @@
 #include "appconfig.h"
 
 #ifdef USE_MOUSE
-static void cb_mouse_switch( GtkWidget *item, gpointer data )
+static void cb_mouse_switch( GtkComboBox *opt, gpointer data )
 {
-	AppConfig.WithMiddleButton = *((bool *) data);
+        gint idx = gtk_combo_box_get_active(opt);
+	AppConfig.WithMiddleButton = (idx == 0);
 }
 
 static bool withMiddleButton = TRUE;
@@ -56,7 +57,7 @@ CGeneralPrefPage::CGeneralPrefPage()
 	GtkWidget *hbox19;
 	GtkWidget *label27;
 	GtkWidget *hbox20;
-	GtkObject *m_PopupTimeout_adj;
+	GtkAdjustment *m_PopupTimeout_adj;
 	GtkWidget *label29;
 	GtkWidget *hbox21;
 	GtkWidget *label30;
@@ -83,16 +84,33 @@ CGeneralPrefPage::CGeneralPrefPage()
 	gtk_widget_show (m_MouseSupport);
 	gtk_box_pack_start (GTK_BOX (hboxMouse), m_MouseSupport, FALSE, FALSE, 0);
 
-	GtkWidget *opt, *menu, *item;
-	opt = gtk_option_menu_new ();
-	menu = gtk_menu_new ();
-	item = make_menu_item (_("with middle button"), G_CALLBACK (cb_mouse_switch), TRUE);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	item = make_menu_item (_("without middle button"), G_CALLBACK (cb_mouse_switch), FALSE);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	gtk_option_menu_set_menu (GTK_OPTION_MENU (opt), menu);
+	GtkWidget *opt;
+        GtkTreeIter iter;
+
+        GtkTreeStore *store = gtk_tree_store_new( 1, G_TYPE_STRING );
+
+        gtk_tree_store_append( store, &iter, NULL );
+        gtk_tree_store_set( store, &iter, 0, _("with middle button"), -1 );
+        gtk_tree_store_append( store, &iter, NULL );
+        gtk_tree_store_set( store, &iter, 0, _("without middle button"), -1 );
+
+        GtkTreeModel* mbModel = GTK_TREE_MODEL( store );
+        opt = gtk_combo_box_new_with_model( mbModel );
+
+        g_signal_connect(opt, "changed", G_CALLBACK(cb_mouse_switch), NULL);
+
 	gtk_widget_show (opt);
 	gtk_box_pack_start (GTK_BOX (hboxMouse), opt, FALSE, FALSE, 0);
+
+	GtkCellRenderer* renderer = gtk_cell_renderer_text_new ();
+	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (opt), renderer, TRUE);
+	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (opt), renderer, "text", 0, NULL);
+	gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (opt), renderer, NULL, NULL, NULL);
+
+	GtkTreePath* path = gtk_tree_path_new_from_indices (withMiddleButton ? 0 : 1, -1);
+	gtk_tree_model_get_iter (mbModel, &iter, path);
+	gtk_tree_path_free (path);
+	gtk_combo_box_set_active_iter (GTK_COMBO_BOX (opt), &iter);
 #endif
 
 #ifdef USE_DOCKLET

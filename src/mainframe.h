@@ -80,7 +80,7 @@ public:
 	static void OnPreference(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnPrevCon(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnSiteList(GtkMenuItem* mitem, CMainFrame* _this);
-	static void OnNotebookChangeCurPage(GtkNotebook* widget, GtkNotebookPage* page,  gint page_num, CMainFrame* _this);
+	static void OnNotebookChangeCurPage(GtkNotebook* widget, GtkWidget* page,  gint page_num, CMainFrame* _this);
 	static gboolean OnNotebookPopupMenu(GtkWidget* widget, GdkEventButton* event, CMainFrame* _this);
 	void SetCurView(CTelnetView* view);
 	CTelnetView* GetCurView(){	return (m_pView);	}
@@ -211,7 +211,9 @@ protected:
 
 	bool m_IsFlashing;
 	GtkWidget* m_URLEntry;
+/*
 	GtkTooltips* m_Tooltips;
+*/
 	GtkLabel* m_StatusBarTime;
 
 #ifdef USE_NANCY

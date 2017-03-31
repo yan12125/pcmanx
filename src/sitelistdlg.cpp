@@ -45,8 +45,7 @@ CSiteListDlg::CSiteListDlg(CWidget* parent)
 	GtkWidget *label26;
 	GtkWidget *close_btn;
 	
-	dialog_vbox3 = GTK_DIALOG (m_Widget)->vbox;
-	gtk_widget_show (dialog_vbox3);
+	gtk_widget_show_all (m_Widget);
 	
 	hbox16 = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox16);
@@ -89,7 +88,7 @@ CSiteListDlg::CSiteListDlg(CWidget* parent)
 	connect_btn = gtk_button_new ();
 	gtk_widget_show (connect_btn);
 	gtk_container_add (GTK_CONTAINER (vbuttonbox1), connect_btn);
-	GTK_WIDGET_SET_FLAGS (connect_btn, GTK_CAN_DEFAULT);
+	gtk_widget_set_can_default (connect_btn, TRUE);
 	
 	alignment1 = gtk_alignment_new (0.5, 0.5, 0, 0);
 	gtk_widget_show (alignment1);
@@ -110,7 +109,7 @@ CSiteListDlg::CSiteListDlg(CWidget* parent)
 	close_btn = gtk_button_new_from_stock ("gtk-close");
 	gtk_widget_show (close_btn);
 	gtk_container_add (GTK_CONTAINER (vbuttonbox1), close_btn);
-	GTK_WIDGET_SET_FLAGS (close_btn, GTK_CAN_DEFAULT);
+	gtk_widget_set_can_default (close_btn, TRUE);
 
 	g_signal_connect ((gpointer) m_SearchBtn, "clicked",
 					G_CALLBACK (&CSiteListDlg::OnSearch),
@@ -266,10 +265,10 @@ void CSiteListDlg::OnClose(GtkButton* btn UNUSED, CSiteListDlg* _this)
 void CSiteListDlg::LoadSiteList()
 {
 	GtkIconSet* icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_NETWORK);
-	m_SiteIcon = gtk_icon_set_render_icon(icon_set, m_Tree->style, GTK_TEXT_DIR_NONE, GTK_STATE_NORMAL, GTK_ICON_SIZE_MENU, NULL, NULL);
+	m_SiteIcon = gtk_icon_set_render_icon(icon_set, gtk_widget_get_style(m_Tree), GTK_TEXT_DIR_NONE, GTK_STATE_NORMAL, GTK_ICON_SIZE_MENU, NULL, NULL);
 
 	icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_DIRECTORY);
-	m_FolderIcon = gtk_icon_set_render_icon(icon_set, m_Tree->style, GTK_TEXT_DIR_NONE, GTK_STATE_NORMAL, GTK_ICON_SIZE_MENU, NULL, NULL);
+	m_FolderIcon = gtk_icon_set_render_icon(icon_set, gtk_widget_get_style(m_Tree), GTK_TEXT_DIR_NONE, GTK_STATE_NORMAL, GTK_ICON_SIZE_MENU, NULL, NULL);
 //	g_object_unref(icon_set);	??
 
 	GtkTreeView* tree = GTK_TREE_VIEW(m_Tree);

@@ -106,7 +106,7 @@ CKeySettingPage::CKeySettingPage(GtkWidget *parent): CWidget()
 	// set event handler
 	// connect every entries with event handler
 	for(int i = 0; i < KEY_SIZE; ++i){
-		g_signal_connect(GTK_OBJECT(m_Entries[i]), "button-press-event", G_CALLBACK(showInputDialogProxy), m_Entries[i]);
+		g_signal_connect(m_Entries[i], "button-press-event", G_CALLBACK(showInputDialogProxy), m_Entries[i]);
 	}
 
 	// set Reset Button event handler

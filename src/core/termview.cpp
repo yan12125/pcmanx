@@ -120,7 +120,7 @@ CTermView::CTermView()
         : CView(), m_pColorTable(CTermCharAttr::GetDefaultColorTable())
 {
 	m_pTermData = NULL;
-	m_GC = NULL;
+	// m_GC = NULL;
 	m_ShowBlink = false;
 	m_Opacity = 0.86;
 	for (int i = FONT_START; i != FONT_END; ++i)
@@ -145,7 +145,7 @@ CTermView::CTermView()
 		 | GDK_POINTER_MOTION_HINT_MASK
 		 | GDK_ALL_EVENTS_MASK);
 
-	GTK_WIDGET_SET_FLAGS(m_Widget, GTK_CAN_FOCUS);
+	gtk_widget_set_can_focus(m_Widget, TRUE);
 	widget_enable_rgba(m_Widget);
 	gtk_widget_set_app_paintable(m_Widget, false);
 	gtk_widget_set_double_buffered(m_Widget, false);
@@ -229,19 +229,20 @@ void CTermView::OnPaint(GdkEventExpose* evt)
 	// Hide the caret to prevent drawing problems.
 	m_Caret.Hide();
 
-	GdkDrawable* dc = m_Widget->window;
-	if(!GDK_IS_DRAWABLE(dc))
+	if(!gtk_widget_is_drawable(m_Widget))
 	{
 		DEBUG("WARNNING! Draw on DELETED widget!");
 		return;
 	}
 
 	// Clear drawable
-	cairo_t* cr = gdk_cairo_create(dc);
+	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(m_Widget));
 	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
 	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
-	int w = m_Widget->allocation.width, h = m_Widget->allocation.height;
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(m_Widget, &alloc);
+	int w = alloc.width, h = alloc.height;
 
 	if( m_pTermData )
 	{
@@ -300,13 +301,16 @@ void CTermView::OnTextInput(const gchar* string UNUSED)
 void CTermView::OnCreate()
 {
 	CWidget::OnCreate();
-	gtk_im_context_set_client_window(m_IMContext, m_Widget->window);
+	GdkWindow *window = gtk_widget_get_window(m_Widget);
+	gtk_im_context_set_client_window(m_IMContext, window);
 
+	Display *dpy = GDK_WINDOW_XDISPLAY(window);
 	m_XftDraw = XftDrawCreate(
-		GDK_WINDOW_XDISPLAY(m_Widget->window),
-		GDK_WINDOW_XWINDOW(m_Widget->window),
-		GDK_VISUAL_XVISUAL(gdk_drawable_get_visual(m_Widget->window)),
-		GDK_COLORMAP_XCOLORMAP (gdk_drawable_get_colormap(m_Widget->window)));
+		dpy,
+		GDK_WINDOW_XID(window),
+		gdk_x11_visual_get_xvisual(gdk_window_get_visual(window)),
+		// TODO: find a proper port of X11 colormap in GTK+3
+		XDefaultColormap (dpy, gdk_x11_screen_get_screen_number(gdk_window_get_screen(window))));
 	XftDrawSetSubwindowMode(m_XftDraw, IncludeInferiors);
 
 
@@ -315,14 +319,13 @@ void CTermView::OnCreate()
 		m_Font[i] = new CFont("WenQuanYi Micro Hei Mono", 16);
 	}
 
-	m_GC = gdk_gc_new(m_Widget->window);
-	gdk_gc_copy(m_GC, m_Widget->style->black_gc);
-
+	// m_GC = gdk_gc_new(window);
+	// gdk_gc_copy(m_GC, m_Widget->style->black_gc);
 	m_Caret.Create(this);
 	m_Caret.Show();
 }
 
-inline void CTermView::Trapezoids(cairo_t *cr, GdkTrapezoid *trapezoids, GdkColor *color)
+inline void CTermView::Trapezoids(cairo_t *cr, Trapezoid *trapezoids, GdkColor *color)
 {
 	g_return_if_fail(cr != NULL || trapezoids != NULL);
 
@@ -379,7 +382,7 @@ bool CTermView::DrawSpaceFillingChar(cairo_t *cr, const char* ch, int x, int y, 
 			return false;
 		case 0x97:
 			{
-				GdkTrapezoid tz;
+				Trapezoid tz;
 
 				tz.y1 = y;
 				tz.y2 = y + m_CharH;
@@ -415,14 +418,13 @@ bool CTermView::DrawSpaceFillingChar(cairo_t *cr, const char* ch, int x, int y, 
 
 int CTermView::DrawChar(int row, int col)
 {
-	GdkDrawable* dc = m_Widget->window;
-	if(!GDK_IS_DRAWABLE(dc) && m_XftDraw == NULL)
+	if(!gtk_widget_is_drawable(m_Widget) && m_XftDraw == NULL)
 	{
 //		g_warning("Draw on DELETED widget!\n");
 		return 1;
 	}
 
-	cairo_t* cr = gdk_cairo_create(dc);
+	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(m_Widget));
 
 	const char* pLine = m_pTermData->m_Screen[m_pTermData->m_FirstLine + row];
 	CTermCharAttr* pAttr = m_pTermData->GetLineAttr(pLine);
@@ -490,7 +492,8 @@ int CTermView::DrawChar(int row, int col)
 		xftclr.color.blue = Fg->blue;
 		xftclr.color.alpha = 0xffff;
 
-		gdk_window_clear_area(m_Widget->window, left, top, bgw, m_CharH);
+		// TODO: maybe another cairo function?
+		// gdk_window_clear_area(gtk_widget_get_window(m_Widget), left, top, bgw, m_CharH);
 		cairo_rectangle(cr, left, top, bgw, m_CharH);
 		cairo_clip(cr);
 		SetSource(cr, Bg);
@@ -910,8 +913,10 @@ void CTermView::GetCellSize( int &w, int &h )
 		return;
 	}
 
-	w = ( m_Widget->allocation.width / m_pTermData->m_ColsPerPage ) - m_CharPaddingX;
-	h = ( m_Widget->allocation.height / m_pTermData->m_RowsPerPage ) - m_CharPaddingY;
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(m_Widget, &alloc);
+	w = ( alloc.width / m_pTermData->m_ColsPerPage ) - m_CharPaddingX;
+	h = ( alloc.height / m_pTermData->m_RowsPerPage ) - m_CharPaddingY;
 }
 
 void CTermView::SetFont( CFont* font, int font_type )
@@ -977,9 +982,11 @@ void CTermView::SetHorizontalCenterAlign( bool is_hcenter )
 	if( m_bHorizontalCenterAlign == is_hcenter || !m_pTermData )
 		return;
 
-	if( (m_bHorizontalCenterAlign = is_hcenter) && GTK_WIDGET_REALIZED(m_Widget) )
-		m_LeftMargin = (m_Widget->allocation.width - m_CharW * m_pTermData->m_ColsPerPage ) / 2 ;
-	else
+	if( (m_bHorizontalCenterAlign = is_hcenter) && gtk_widget_get_realized(m_Widget) ) {
+		GtkAllocation alloc;
+		gtk_widget_get_allocation(m_Widget, &alloc);
+		m_LeftMargin = (alloc.width - m_CharW * m_pTermData->m_ColsPerPage ) / 2 ;
+	} else
 		m_LeftMargin = 0;
 
 	if( IsVisible() )
@@ -992,9 +999,11 @@ void CTermView::SetVerticalCenterAlign( bool is_vcenter )
 	if( m_bVerticalCenterAlign == is_vcenter || !m_pTermData )
 		return;
 
-	if( (m_bVerticalCenterAlign = is_vcenter) && GTK_WIDGET_REALIZED(m_Widget) )
-		m_TopMargin = (m_Widget->allocation.height - m_CharH * m_pTermData->m_RowsPerPage ) / 2 ;
-	else
+	if( (m_bVerticalCenterAlign = is_vcenter) && gtk_widget_get_realized(m_Widget) ) {
+		GtkAllocation alloc;
+		gtk_widget_get_allocation(m_Widget, &alloc);
+		m_TopMargin = (alloc.height - m_CharH * m_pTermData->m_RowsPerPage ) / 2 ;
+	} else
 		m_TopMargin = 0;
 
 	if( IsVisible() )
@@ -1060,7 +1069,8 @@ void CTermView::OnDestroy()
 
 	if( m_HandCursor )
 		gdk_cursor_unref(m_HandCursor);
-	if( m_HandCursor->ref_count <= 0 )
+	// TODO: find a proper port for this
+	// if( m_HandCursor->ref_count <= 0 )
 		m_HandCursor = NULL;
 
 	CView::OnDestroy();	// Remember to destruct parent
@@ -1071,13 +1081,15 @@ void CTermView::RecalcCharDimension()
 	m_CharW = m_Font[FONT_DEFAULT]->GetWidth() + m_CharPaddingX;
 	m_CharH = m_Font[FONT_DEFAULT]->GetHeight() + m_CharPaddingY;
 
+	GtkAllocation alloc;
+	gtk_widget_get_allocation(m_Widget, &alloc);
 	if( m_bHorizontalCenterAlign )
-		m_LeftMargin = (m_Widget->allocation.width - m_CharW * m_pTermData->m_ColsPerPage ) / 2;
+		m_LeftMargin = (alloc.width - m_CharW * m_pTermData->m_ColsPerPage ) / 2;
 	else
 		m_LeftMargin = 0;
 
 	if( m_bVerticalCenterAlign )
-		m_TopMargin = (m_Widget->allocation.height - m_CharH * m_pTermData->m_RowsPerPage ) / 2;
+		m_TopMargin = (alloc.height - m_CharH * m_pTermData->m_RowsPerPage ) / 2;
 	else
 		m_TopMargin = 0;
 

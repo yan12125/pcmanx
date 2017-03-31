@@ -104,7 +104,7 @@ void CMainFrame::OnToggleToolBar(GtkToggleAction *toggleaction, CMainFrame *_thi
 	if (AppConfig.ShowToolbar) {
 		gtk_widget_show_all((GtkWidget *)_this->m_Toolbar);
 	} else {
-		gtk_widget_hide_all((GtkWidget *)_this->m_Toolbar);
+		gtk_widget_hide((GtkWidget *)_this->m_Toolbar);
 	}
 }
 
@@ -114,7 +114,7 @@ void CMainFrame::OnToggleStatusBar(GtkToggleAction *toggleaction, CMainFrame *_t
 	if (AppConfig.ShowStatusBar) {
 		gtk_widget_show_all((GtkWidget *)_this->m_Statusbar);
 	} else {
-		gtk_widget_hide_all((GtkWidget *)_this->m_Statusbar);
+		gtk_widget_hide((GtkWidget *)_this->m_Statusbar);
 	}
 }
 
@@ -134,7 +134,7 @@ void CMainFrame::OnToggleMenuBar(GtkToggleAction *toggleaction, CMainFrame *_thi
 	if (AppConfig.ShowMenuBar) {
 		gtk_widget_show_all((GtkWidget *)_this->m_Menubar);
 	} else {
-		gtk_widget_hide_all((GtkWidget *)_this->m_Menubar);
+		gtk_widget_hide((GtkWidget *)_this->m_Menubar);
 	}
 }
 /*
@@ -236,7 +236,7 @@ CMainFrame::CMainFrame()
 	if (AppConfig.ShowToolbar) {
 		gtk_widget_show_all(m_Toolbar);
 	} else {
-		gtk_widget_hide_all(m_Toolbar);
+		gtk_widget_hide(m_Toolbar);
 	}
 	gtk_box_pack_start (GTK_BOX (vbox), m_pNotebook->m_Widget, TRUE, TRUE, 0);
 	gtk_widget_set_size_request(m_pNotebook->m_Widget, 300, 200);
@@ -278,7 +278,7 @@ CMainFrame::CMainFrame()
 	if (AppConfig.ShowStatusBar) {
 		gtk_widget_show_all(m_Statusbar);
 	} else {
-		gtk_widget_hide_all(m_Statusbar);
+		gtk_widget_hide(m_Statusbar);
 	}
 
 	m_BlinkTimer = g_timeout_add(600, (GSourceFunc)CMainFrame::OnBlinkTimer, this );
@@ -723,8 +723,7 @@ void CMainFrame::MakeUI()
 	GtkWidget* url_label = (GtkWidget*) gtk_label_new_with_mnemonic(_("A_ddress:"));
 	m_URLEntry = (GtkWidget*) gtk_entry_new();
 	gtk_widget_set_size_request(m_URLEntry, 0, -1);
-	GtkTooltips* tooltips = gtk_tooltips_new();
-	gtk_tooltips_set_tip(tooltips, m_URLEntry, _("Type URL here, then hit \"Enter\""), NULL);
+	gtk_widget_set_tooltip_text(m_URLEntry, _("Type URL here, then hit \"Enter\""));
 	gtk_label_set_mnemonic_widget(GTK_LABEL(url_label), m_URLEntry);
 	gtk_box_pack_start( GTK_BOX(url_bar), url_label, FALSE, FALSE, 4);
 	gtk_box_pack_start( GTK_BOX(url_bar), m_URLEntry, TRUE, TRUE, 4);
@@ -748,9 +747,9 @@ void CMainFrame::MakeUI()
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(gtk_action_group_get_action(m_ActionGroup, "menubar")), AppConfig.ShowMenuBar);
 
 	// Ansi Editor widget events
-	g_signal_connect(GTK_OBJECT(m_cbTextColor), "changed", G_CALLBACK(SetTextColor), this);
-	g_signal_connect(GTK_OBJECT(m_cbBgColor), "changed", G_CALLBACK(SetBgColor), this);
-	g_signal_connect(GTK_OBJECT(m_chkBlink), "toggled", G_CALLBACK(SetBlink), this);
+	g_signal_connect(m_cbTextColor, "changed", G_CALLBACK(SetTextColor), this);
+	g_signal_connect(m_cbBgColor, "changed", G_CALLBACK(SetBgColor), this);
+	g_signal_connect(m_chkBlink, "toggled", G_CALLBACK(SetBlink), this);
 
 	CreateFavoritesMenu();
 	CreateTrayIcon();
@@ -819,14 +818,14 @@ void CMainFrame::OnFont(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 	GtkWidget* apply_to_all = gtk_check_button_new_with_label( _("Apply to all opened pages") );
 	gtk_widget_show(apply_to_all);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(apply_to_all), true);
-	gtk_box_pack_start( GTK_BOX(fsdlg->action_area), apply_to_all, true, true, 4);
-	gtk_box_reorder_child( GTK_BOX(fsdlg->action_area), apply_to_all, 0 );
-	gtk_box_set_homogeneous(GTK_BOX(fsdlg->action_area), false);
+	gtk_box_pack_start( GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(fsdlg))), apply_to_all, true, true, 4);
+	gtk_box_reorder_child( GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(fsdlg))), apply_to_all, 0 );
+	gtk_box_set_homogeneous(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(fsdlg))), false);
 
 	// This is not a good method because fontsel is a private member of GtkFontSelectionDialog.
 	// But we need this functionality.
-	GtkFontSelection* fontsel = GTK_FONT_SELECTION(fsdlg->fontsel);
-	gtk_widget_set_sensitive(fontsel->face_list, false);
+	GtkFontSelection* fontsel = GTK_FONT_SELECTION(gtk_font_selection_dialog_get_font_selection(fsdlg));
+	gtk_widget_set_sensitive(gtk_font_selection_get_face_list(fontsel), false);
 
 	char pango_font_name[32];
 	int *font_size = NULL;
@@ -953,7 +952,7 @@ void CMainFrame::OnShortcutList(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 						  "<b>View Shortcuts</b>\n%s\n\n"),
 						   connect_shortcuts, edit_shortcuts, view_shortcuts );
 
-	gtk_image_set_from_pixbuf((GtkImage*) ((GtkMessageDialog*)dlg)->image, _this->m_MainIcon);
+	gtk_image_set_from_pixbuf((GtkImage*) gtk_message_dialog_get_image(GTK_MESSAGE_DIALOG(dlg)), _this->m_MainIcon);
 	gtk_dialog_run((GtkDialog*) dlg); // == GTK_RESPONSE_OK
 	gtk_widget_destroy(dlg);
 }
@@ -994,7 +993,7 @@ void CMainFrame::OnAbout(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 						"Authors:\n%s\n")
 						, authors	);
 */
-	gtk_image_set_from_pixbuf((GtkImage*)((GtkMessageDialog*)dlg)->image, _this->m_MainIcon);
+	gtk_image_set_from_pixbuf((GtkImage*)gtk_message_dialog_get_image(GTK_MESSAGE_DIALOG(dlg)), _this->m_MainIcon);
 	gtk_dialog_run((GtkDialog*)dlg); // == GTK_RESPONSE_OK
 	gtk_widget_destroy(dlg);
 }
@@ -1226,11 +1225,11 @@ void CMainFrame::OnPreference(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 		if (AppConfig.ShowToolbar)
 			gtk_widget_show_all(_this->m_Toolbar);
 		else
-			gtk_widget_hide_all(_this->m_Toolbar);
+			gtk_widget_hide(_this->m_Toolbar);
 		if (AppConfig.ShowStatusBar)
 			gtk_widget_show_all(_this->m_Statusbar);
 		else
-			gtk_widget_hide_all(_this->m_Statusbar);
+			gtk_widget_hide(_this->m_Statusbar);
 	}
 }
 
@@ -1313,7 +1312,7 @@ void CMainFrame::OnTelnetConRecv(CTelnetView* con)
 
 
 void CMainFrame::OnNotebookChangeCurPage(GtkNotebook* widget UNUSED,
-                                         GtkNotebookPage* page UNUSED,
+                                         GtkWidget* page UNUSED,
                                          gint page_num,
                                          CMainFrame* _this)
 {
@@ -1645,7 +1644,7 @@ void CMainFrame::CreateTrayIcon()
 	else {
 		m_TrayIcon = gtk_status_icon_new();
 		gtk_status_icon_set_from_pixbuf(m_TrayIcon, m_MainIcon);
-		gtk_status_icon_set_tooltip(m_TrayIcon, "PCManX");
+		// gtk_status_icon_set_tooltip(m_TrayIcon, "PCManX");
 
 		g_signal_connect (G_OBJECT (m_TrayIcon), "popup-menu",
 				G_CALLBACK (CMainFrame::OnTray_Popup), this);
@@ -1797,8 +1796,8 @@ gboolean CMainFrame::OnURLEntryKeyDown(GtkWidget *widget, GdkEventKey *evt, CMai
 {
 	switch(evt->keyval)
 	{
-	case GDK_Return:
-	case GDK_KP_Enter:
+	case GDK_KEY_Return:
+	case GDK_KEY_KP_Enter:
 	{
 		string url = gtk_entry_get_text( GTK_ENTRY(widget) );
 		if( !url.empty() )
@@ -1806,9 +1805,9 @@ gboolean CMainFrame::OnURLEntryKeyDown(GtkWidget *widget, GdkEventKey *evt, CMai
 			_this->NewCon( url, url );
 			return true;
 		}
-		//	else goto case GDK_Escape
+		//	else goto case GDK_KEY_Escape
 	}
-	case GDK_Escape:
+	case GDK_KEY_Escape:
 		if( _this->GetCurView() )
 			_this->GetCurView()->SetFocus();
 		else
@@ -2022,7 +2021,7 @@ void CMainFrame::SetBlink(GtkToggleButton *togglebutton, CMainFrame *_this)
 	if( _this->m_Views.empty() ||  _this->GetCurEditor() == NULL )
 		return;
 
-	bool blink = (togglebutton->active)? true: false;
+	bool blink = gtk_toggle_button_get_active(togglebutton) ? true: false;
 
 	_this->GetCurEditor()->ApplyAnsiColor(-1, blink, -1, -1);
 
