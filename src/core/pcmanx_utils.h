@@ -25,4 +25,21 @@ typedef unsigned int word_t;
 #  define X_EXPORT
 #endif
 
+#include <gtk/gtk.h>
+#if GTK_CHECK_VERSION(3, 0, 0)
+
+typedef GtkAdjustment GTK_ADJUSTMENT_TYPE;
+
+#else
+
+inline gboolean
+gtk_widget_is_visible (GtkWidget *widget)
+{
+    return GTK_WIDGET_VISIBLE(widget);
+}
+
+typedef GtkObject GTK_ADJUSTMENT_TYPE;
+
+#endif
+
 #endif

@@ -89,10 +89,10 @@ public:
     static int Opacity;
 
 protected:
-    void OnPaint(GdkEventExpose* evt);
+    void OnPaint(cairo_t* cr, GdkEventExpose* evt);
     void OnSetFocus(GdkEventFocus* evt);
     void OnCreate();
-    void OnSize(GdkEventConfigure* evt);
+    void OnSize();
     void OnKillFocus(GdkEventFocus *evt);
 	static void OnBeforeDestroy( GtkWidget* widget, CTermView* _this);
     void UpdateCaretPos();

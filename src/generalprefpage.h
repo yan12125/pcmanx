@@ -39,7 +39,7 @@ public:
 	GtkWidget *m_CancelSelAfterCopy;
 
   GtkWidget *m_Opacity;
-  GtkAdjustment *m_Opacity_adj;
+  GTK_ADJUSTMENT_TYPE *m_Opacity_adj;
 #ifdef USE_MOUSE
 	GtkWidget *m_MouseSupport;
 #endif

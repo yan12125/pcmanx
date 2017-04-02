@@ -35,8 +35,8 @@ class X_EXPORT CView : public CWidget
 public:
     CView();
 
-    virtual void OnPaint(GdkEventExpose *evt) = 0;
-    virtual void OnSize(GdkEventConfigure* evt);
+    virtual void OnPaint(cairo_t *cr, GdkEventExpose *evt) = 0;
+    virtual void OnSize();
     virtual void OnSetFocus(GdkEventFocus *evt);
     virtual void OnKillFocus(GdkEventFocus *evt);
 

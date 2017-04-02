@@ -149,6 +149,11 @@ AC_ARG_ENABLE([proxy],
 		[enable proxy support (default: no)]),
 	proxy=$enableval, proxy="no")
 
+AC_ARG_ENABLE([gtk3],
+	AS_HELP_STRING([--enable-gtk3],
+		[build with GTK+3 (default: no)]),
+	gtk3=$enableval, gtk3="no")
+
 dnl *********************************************************************
 dnl ** DEBUG ************************************************************
 dnl *********************************************************************
@@ -171,10 +176,18 @@ dnl *********************************************************************
 dnl ** GTK **************************************************************
 dnl *********************************************************************
 
+if test "$gtk3" = "yes" ; then
 AM_PATH_GTK_3_0([3.0.0], [
                  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
                  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
                  ], [AC_MSG_ERROR([Cannot find GTK+/X11 3.0 (or above version)!])])
+
+else
+AM_PATH_GTK_2_0([2.22.0], [
+                 GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
+                 GUI_LIBS="$GUI_LIBS $GTK_LIBS"
+                 ], [AC_MSG_ERROR([Cannot find GTK+/X11 2.22 (or above version)!])])
+fi
 
 dnl *********************************************************************
 dnl ** Freetype2 ********************************************************

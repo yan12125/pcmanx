@@ -224,7 +224,7 @@ void CTermView::Line(cairo_t* cr, int x0, int y0, int x1, int y1)
     cairo_stroke(cr);
 }
 
-void CTermView::OnPaint(GdkEventExpose* evt)
+void CTermView::OnPaint(cairo_t* cr, GdkEventExpose* evt)
 {
 	// Hide the caret to prevent drawing problems.
 	m_Caret.Hide();
@@ -236,7 +236,11 @@ void CTermView::OnPaint(GdkEventExpose* evt)
 	}
 
 	// Clear drawable
-	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(m_Widget));
+#if GTK_CHECK_VERSION(3, 0, 0)
+	g_assert(cr);
+#else
+	cr = gdk_cairo_create(gtk_widget_get_window(m_Widget));
+#endif
 	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
 	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
@@ -246,6 +250,13 @@ void CTermView::OnPaint(GdkEventExpose* evt)
 
 	if( m_pTermData )
 	{
+#if GTK_CHECK_VERSION(3, 0, 0)
+		// TODO: Draw exposed area only
+		int top = 0, left = 0,
+			right = m_pTermData->m_ColsPerPage,
+			bottom = m_pTermData->m_RowsPerPage;
+#else
+		g_assert(evt);
 		// Only redraw the invalid area to greatly enhance performance.
 		int top = evt->area.y;		int bottom = top + evt->area.height;
 		int left = evt->area.x;		int right = left + evt->area.width;
@@ -255,6 +266,7 @@ void CTermView::OnPaint(GdkEventExpose* evt)
 		if(right < m_pTermData->m_ColsPerPage)	right++;
 		if(bottom < m_pTermData->m_RowsPerPage)	bottom++;
 		if(top > 0)	top-=top>1?2:1;
+#endif
 
 		for( int row = top; row < bottom; row++ )
 		{
@@ -278,7 +290,9 @@ void CTermView::OnPaint(GdkEventExpose* evt)
 		SetSource(cr, CTermCharAttr::GetDefaultColorTable(0));
 		Rectangle(cr, true, 0, 0, w, h);
 	}
+#if ! GTK_CHECK_VERSION(3, 0, 0)
 	cairo_destroy(cr);
+#endif
 }
 
 void CTermView::OnSetFocus(GdkEventFocus* evt UNUSED)
@@ -619,7 +633,7 @@ void CTermView::PointToLineCol(int *x, int *y, bool *left)
 	}
 }
 
-void CTermView::OnSize(GdkEventConfigure* evt UNUSED)
+void CTermView::OnSize()
 {
 	if( !m_AutoFontSize || !m_pTermData )
 		return;

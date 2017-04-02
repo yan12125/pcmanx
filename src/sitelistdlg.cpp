@@ -49,7 +49,7 @@ CSiteListDlg::CSiteListDlg(CWidget* parent)
 	
 	hbox16 = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox16);
-	gtk_box_pack_start (GTK_BOX (dialog_vbox3), hbox16, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area(GTK_DIALOG(m_Widget))), hbox16, TRUE, TRUE, 0);
 	
 	vbox4 = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox4);
