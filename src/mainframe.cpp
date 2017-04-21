@@ -944,15 +944,30 @@ void CMainFrame::OnShortcutList(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 			"Show Main Window	Alt+M"
 #endif
 			);
-	GtkWidget* dlg = gtk_message_dialog_new_with_markup( (GtkWindow*)_this->m_Widget,
+	GtkWidget* dlg = gtk_dialog_new_with_buttons( "Shortcuts",
+						GTK_WINDOW(_this->m_Widget),
 						GTK_DIALOG_DESTROY_WITH_PARENT,
-						GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
-						_("<b>Connect Shortcuts</b>\n%s\n\n"
-						  "<b>Edit Shortcuts</b>\n%s\n\n"
-						  "<b>View Shortcuts</b>\n%s\n\n"),
-						   connect_shortcuts, edit_shortcuts, view_shortcuts );
+						"OK", GTK_BUTTONS_OK, NULL
+						);
+	char* markup = g_markup_printf_escaped(_("<b>Connect Shortcuts</b>\n%s\n\n"
+						 "<b>Edit Shortcuts</b>\n%s\n\n"
+						 "<b>View Shortcuts</b>\n%s\n\n"),
+						 connect_shortcuts, edit_shortcuts, view_shortcuts);
+	GtkWidget* shortcutsLabel = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(shortcutsLabel), markup);
 
-	gtk_image_set_from_pixbuf((GtkImage*) gtk_message_dialog_get_image(GTK_MESSAGE_DIALOG(dlg)), _this->m_MainIcon);
+	GtkWidget* main_icon = gtk_image_new_from_pixbuf(_this->m_MainIcon);
+	GtkWidget* hbox = gtk_hbox_new(FALSE, 5);
+	GtkWidget* alignment = gtk_alignment_new(0, 0, 0, 0);
+	gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), 5, 5, 5, 5);
+	gtk_container_add(GTK_CONTAINER(alignment), main_icon);
+	gtk_container_add(GTK_CONTAINER(hbox), alignment);
+
+	GtkWidget* content_area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
+	gtk_container_add(GTK_CONTAINER(hbox), shortcutsLabel);
+	gtk_container_add(GTK_CONTAINER(content_area), hbox);
+
+	gtk_widget_show_all(content_area);
 	gtk_dialog_run((GtkDialog*) dlg); // == GTK_RESPONSE_OK
 	gtk_widget_destroy(dlg);
 }
@@ -972,17 +987,18 @@ void CMainFrame::OnAbout(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 			);
 	char* translators = _( "Chinese Simplified (zh_CN): Haifeng Chen <optical.dlz@gmail.com>" );
 
-	GtkWidget* dlg = gtk_message_dialog_new_with_markup( (GtkWindow*)_this->m_Widget,
+	GtkWidget* dlg = gtk_dialog_new_with_buttons( "About",
+						(GtkWindow*)_this->m_Widget,
 						GTK_DIALOG_DESTROY_WITH_PARENT,
-						GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
-						_("<b>PCManX %s</b>\nA free BBS client developed with GTK+ 2.x\n\n"
-						"Copyright © 2005-2012\n"
-						"License: GNU Genral Public License\n"
-						"Project: <a href=\"%s\">%s</a>\n"
-						"Mailing List: <a href=\"%s\">%s</a>\n"
-						"Bug Report: <a href=\"%s\">%s</a>\n\n"
-						"<b>Authors</b>:\n%s\n\n"
-						"<b>Translators</b>:\n%s\n\n"), PACKAGE_VERSION, PROJECT_SITE, PROJECT_SITE,
+						"OK", GTK_BUTTONS_OK, NULL);
+	char* markup = g_markup_printf_escaped(_("<b>PCManX %s</b>\nA free BBS client developed with GTK+ 2.x\n\n"
+				"Copyright © 2005-2012\n"
+				"License: GNU Genral Public License\n"
+				"Project: <a href=\"%s\">%s</a>\n"
+				"Mailing List: <a href=\"%s\">%s</a>\n"
+				"Bug Report: <a href=\"%s\">%s</a>\n\n"
+				"<b>Authors</b>:\n%s\n\n"
+				"<b>Translators</b>:\n%s\n\n"), PACKAGE_VERSION, PROJECT_SITE, PROJECT_SITE,
                         PROJECT_FORUM, PROJECT_FORUM, PACKAGE_BUGREPORT, PACKAGE_BUGREPORT, authors, translators );
 
 // GTK+ supports this API since ver 2.6.
@@ -993,7 +1009,19 @@ void CMainFrame::OnAbout(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 						"Authors:\n%s\n")
 						, authors	);
 */
-	gtk_image_set_from_pixbuf((GtkImage*)gtk_message_dialog_get_image(GTK_MESSAGE_DIALOG(dlg)), _this->m_MainIcon);
+	GtkWidget* main_icon = gtk_image_new_from_pixbuf(_this->m_MainIcon);
+	GtkWidget* content_area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
+	GtkWidget* hbox = gtk_hbox_new(FALSE, 5);
+	GtkWidget* alignment = gtk_alignment_new(0, 0, 0, 0);
+	gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), 5, 5, 5, 5);
+	gtk_container_add(GTK_CONTAINER(alignment), main_icon);
+	gtk_container_add(GTK_CONTAINER(hbox), alignment);
+
+	GtkWidget* aboutLabel = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(aboutLabel), markup);
+	gtk_container_add(GTK_CONTAINER(hbox), aboutLabel);
+	gtk_container_add(GTK_CONTAINER(content_area), hbox);
+	gtk_widget_show_all(hbox);
 	gtk_dialog_run((GtkDialog*)dlg); // == GTK_RESPONSE_OK
 	gtk_widget_destroy(dlg);
 }
