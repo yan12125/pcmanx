@@ -45,13 +45,13 @@ public:
 	void Destroy();
 	void SetFocus()
 	{
-		if(!GTK_WIDGET_HAS_FOCUS(m_Widget))
+		if(!gtk_widget_has_focus(m_Widget))
 			 gtk_widget_grab_focus(m_Widget);
 	}
 	void SetCapture(){	if(!HasCapture())	gtk_grab_add(m_Widget);	}
 	void ReleaseCapture(){	gtk_grab_remove(m_Widget);	}
 	bool HasCapture()	{	return (gtk_grab_get_current() == m_Widget);	}
-    bool IsVisible(){	return m_Widget && GTK_WIDGET_VISIBLE(m_Widget);	}
+    bool IsVisible(){	return m_Widget && gtk_widget_get_visible(m_Widget);	}
 
     bool PostCreate();
 

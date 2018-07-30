@@ -98,7 +98,7 @@ static int slow_hide_win(gpointer data)
 static int wait_win(gpointer data)
 {
 	Win *win = (Win *)data;
-	win->ani_timer_id = gtk_timeout_add(SPEED, slow_hide_win, data);
+	win->ani_timer_id = g_timeout_add(SPEED, slow_hide_win, data);
 	win->timeout_id = 0;
 	return FALSE;
 }
@@ -111,7 +111,7 @@ static int mouseout_win(GtkWidget *widget,
 	gtk_container_set_border_width(GTK_CONTAINER(win->win), 5);
 	if (win->timeout_id)
 		g_source_remove(win->timeout_id);
-	win->timeout_id = gtk_timeout_add(WAIT_PERIOD, wait_win, data);
+	win->timeout_id = g_timeout_add(WAIT_PERIOD, wait_win, data);
 	return TRUE;
 }
 
@@ -145,7 +145,7 @@ static int slow_show_win(gpointer data)
 
 		/* Trace animation timeout */
 		win->ani_timer_id = 0;
-		win->timeout_id = gtk_timeout_add(
+		win->timeout_id = g_timeout_add(
 			popup_timeout, wait_win, data);
 		return FALSE;
 	}
@@ -182,7 +182,7 @@ static Win* begin_animation(GtkWidget * win, GtkWidget * context)
 		working_area.x + width - win->allocation.width, begin);
 	gtk_widget_show_all(win);
 
-	w->ani_timer_id = gtk_timeout_add(SPEED, slow_show_win, w);
+	w->ani_timer_id = g_timeout_add(SPEED, slow_show_win, w);
 	w->timeout_id = 0;
 
 	return w;

@@ -145,7 +145,7 @@ CTermView::CTermView()
 		 | GDK_POINTER_MOTION_HINT_MASK
 		 | GDK_ALL_EVENTS_MASK);
 
-	GTK_WIDGET_SET_FLAGS(m_Widget, GTK_CAN_FOCUS);
+	gtk_widget_set_can_focus(m_Widget, TRUE);
 	widget_enable_rgba(m_Widget);
 	gtk_widget_set_app_paintable(m_Widget, false);
 	gtk_widget_set_double_buffered(m_Widget, false);
@@ -305,7 +305,7 @@ void CTermView::OnCreate()
 	m_XftDraw = XftDrawCreate(
 		GDK_WINDOW_XDISPLAY(m_Widget->window),
 		GDK_WINDOW_XWINDOW(m_Widget->window),
-		GDK_VISUAL_XVISUAL(gdk_drawable_get_visual(m_Widget->window)),
+		GDK_VISUAL_XVISUAL(gdk_window_get_visual(m_Widget->window)),
 		GDK_COLORMAP_XCOLORMAP (gdk_drawable_get_colormap(m_Widget->window)));
 	XftDrawSetSubwindowMode(m_XftDraw, IncludeInferiors);
 
@@ -315,8 +315,10 @@ void CTermView::OnCreate()
 		m_Font[i] = new CFont("WenQuanYi Micro Hei Mono", 16);
 	}
 
+	/*
 	m_GC = gdk_gc_new(m_Widget->window);
 	gdk_gc_copy(m_GC, m_Widget->style->black_gc);
+	*/
 
 	m_Caret.Create(this);
 	m_Caret.Show();
@@ -977,7 +979,7 @@ void CTermView::SetHorizontalCenterAlign( bool is_hcenter )
 	if( m_bHorizontalCenterAlign == is_hcenter || !m_pTermData )
 		return;
 
-	if( (m_bHorizontalCenterAlign = is_hcenter) && GTK_WIDGET_REALIZED(m_Widget) )
+	if( (m_bHorizontalCenterAlign = is_hcenter) && gtk_widget_get_realized(m_Widget) )
 		m_LeftMargin = (m_Widget->allocation.width - m_CharW * m_pTermData->m_ColsPerPage ) / 2 ;
 	else
 		m_LeftMargin = 0;
@@ -992,7 +994,7 @@ void CTermView::SetVerticalCenterAlign( bool is_vcenter )
 	if( m_bVerticalCenterAlign == is_vcenter || !m_pTermData )
 		return;
 
-	if( (m_bVerticalCenterAlign = is_vcenter) && GTK_WIDGET_REALIZED(m_Widget) )
+	if( (m_bVerticalCenterAlign = is_vcenter) && gtk_widget_get_realized(m_Widget) )
 		m_TopMargin = (m_Widget->allocation.height - m_CharH * m_pTermData->m_RowsPerPage ) / 2 ;
 	else
 		m_TopMargin = 0;

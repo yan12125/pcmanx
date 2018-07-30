@@ -25,9 +25,11 @@
 #include "appconfig.h"
 
 #ifdef USE_MOUSE
-static void cb_mouse_switch( GtkWidget *item, gpointer data )
+static void cb_mouse_switch( GtkWidget *combo_box, gpointer data )
 {
-	AppConfig.WithMiddleButton = *((bool *) data);
+	gchar *active_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (combo_box));
+	AppConfig.WithMiddleButton = !strcmp(_("with middle button"), active_text);
+	g_free (active_text);
 }
 
 static bool withMiddleButton = TRUE;
@@ -83,16 +85,13 @@ CGeneralPrefPage::CGeneralPrefPage()
 	gtk_widget_show (m_MouseSupport);
 	gtk_box_pack_start (GTK_BOX (hboxMouse), m_MouseSupport, FALSE, FALSE, 0);
 
-	GtkWidget *opt, *menu, *item;
-	opt = gtk_option_menu_new ();
-	menu = gtk_menu_new ();
-	item = make_menu_item (_("with middle button"), G_CALLBACK (cb_mouse_switch), TRUE);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	item = make_menu_item (_("without middle button"), G_CALLBACK (cb_mouse_switch), FALSE);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	gtk_option_menu_set_menu (GTK_OPTION_MENU (opt), menu);
-	gtk_widget_show (opt);
-	gtk_box_pack_start (GTK_BOX (hboxMouse), opt, FALSE, FALSE, 0);
+	GtkWidget *combo_box;
+	combo_box = gtk_combo_box_text_new ();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), _("with middle button"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), _("without middle button"));
+	g_signal_connect (combo_box, "changed", G_CALLBACK (cb_mouse_switch), 0);
+	gtk_widget_show (combo_box);
+	gtk_box_pack_start (GTK_BOX (hboxMouse), combo_box, FALSE, FALSE, 0);
 #endif
 
 #ifdef USE_DOCKLET

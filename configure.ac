@@ -176,6 +176,10 @@ AM_PATH_GTK_2_0([2.22.0], [
                  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
                  ], [AC_MSG_ERROR([Cannot find GTK+/X11 2.22 (or above version)!])])
 
+GUI_CFLAGS="$GUI_CFLAGS -DGTK_DISABLE_SINGLE_INCLUDES"
+GUI_CFLAGS="$GUI_CFLAGS -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+GUI_CFLAGS="$GUI_CFLAGS -Werror=implicit-function-declaration"
+
 dnl *********************************************************************
 dnl ** Freetype2 ********************************************************
 dnl *********************************************************************
